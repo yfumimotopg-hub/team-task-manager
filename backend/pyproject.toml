@@ -1,0 +1,32 @@
+[project]
+name = "team-task-manager-backend"
+version = "0.1.0"
+requires-python = ">=3.14,<3.15"
+dependencies = [
+    "fastapi[standard]>=0.141.1",
+]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 88
+
+[tool.ruff.lint]
+# EXE002 fires only because the Windows host bind mount presents files as 0777
+# inside the container; the source has no intentional executable bit.
+ignore = ["EXE002"]
+
+[tool.pyright]
+pythonVersion = "3.14"
+typeCheckingMode = "standard"
+reportUnnecessaryTypeIgnoreComment = "error"
+include = ["app", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "pyright>=1.1.411",
+    "pytest>=9.1.1",
+    "ruff>=0.16.6",
+]

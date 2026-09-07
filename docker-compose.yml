@@ -1,0 +1,18 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    working_dir: /app
+    # Placeholder so `docker compose up backend` stays alive for verification.
+    # Task B replaces this with the FastAPI dev server.
+    command: ["sleep", "infinity"]
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - backend-venv:/opt/venv
+      - uv-cache:/cache/uv
+
+volumes:
+  backend-venv:
+  uv-cache:
