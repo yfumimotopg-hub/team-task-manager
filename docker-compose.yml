@@ -4,8 +4,14 @@ services:
       context: ./backend
     working_dir: /app
     # Placeholder so `docker compose up backend` stays alive for verification.
-    # Task B replaces this with the FastAPI dev server.
+    # A later task replaces this with the FastAPI dev server.
     command: ["sleep", "infinity"]
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      TEST_DATABASE_URL: ${TEST_DATABASE_URL}
+    depends_on:
+      db:
+        condition: service_healthy
     ports:
       - "8000:8000"
     volumes:
@@ -13,6 +19,24 @@ services:
       - backend-venv:/opt/venv
       - uv-cache:/cache/uv
 
+  db:
+    image: postgres:18-bookworm
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      # postgres:18+ stores data in a version-specific subdirectory; mount the
+      # parent, not /var/lib/postgresql/data (the <=17 convention).
+      - pgdata:/var/lib/postgresql
+      - ./docker/postgres/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
 volumes:
   backend-venv:
   uv-cache:
+  pgdata:
